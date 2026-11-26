@@ -249,6 +249,8 @@ class PlaybackService : Service() {
             .setContentTitle(data?.title ?: "Nexus Player")
             .setContentText(data?.artist ?: "Unknown artist")
             .setLargeIcon(bitmap)
+            .setColor(0xFF1A1226.toInt())
+            .setColorized(true)
             .setContentIntent(openAppIntent())
             .setOnlyAlertOnce(true)
             .setShowWhen(false)
