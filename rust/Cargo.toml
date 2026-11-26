@@ -1,0 +1,8 @@
+﻿[workspace]
+resolver = "2"
+members = [
+    "crates/nexus_types",
+    "crates/nexus_core",
+    "crates/nexus_audio",
+    "crates/nexus_bridge",
+]
