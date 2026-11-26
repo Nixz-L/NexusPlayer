@@ -53,25 +53,6 @@ jobs:
           IN_CI=1 ./include/download-sdk.sh
           IN_CI=1 ./include/download-deps.sh
 
-      - name: Pin dependency revisions
-        working-directory: mpv-android-src/buildscripts
-        run: |
-          checkout_commit() {
-            repo="$1"
-            revision="$2"
-
-            git -C "deps/$repo" fetch --depth=1 origin "$revision"
-            git -C "deps/$repo" checkout --detach FETCH_HEAD
-          }
-
-          checkout_commit dav1d 362bc11
-          checkout_commit ffmpeg 094a2f8
-          checkout_commit libass b2fe9d8
-          checkout_commit libplacebo 3330a51
-          checkout_commit mpv 0b7ed67
-
-          git -C deps/libplacebo submodule update --init --recursive
-
       - name: Build libmpv for ARM64
         working-directory: mpv-android-src/buildscripts
         run: |
