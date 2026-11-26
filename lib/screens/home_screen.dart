@@ -1006,6 +1006,26 @@ IconButton(
               child: _tab == 0 ? _buildHome() : _buildOtherTab(),
             ),
           ),
+          if (_tab == 0)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 290,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  key: const ValueKey("_bottomFade"),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0x0005040A), Color(0xFF05040A)],
+                      stops: [0.0, 0.55],
+                    ),
+                  ),
+                ),
+              ),
+            ),
           _buildBottomDock(),
         ],
       ),
@@ -1724,7 +1744,7 @@ IconButton(
             Container(
               height: 76,
               decoration: BoxDecoration(
-                color: const Color(0xF20D0A16),
+                color: const Color(0xFF0D0A16),
                 borderRadius: BorderRadius.circular(38),
                 border: Border.all(color: const Color(0xFF38234D), width: 0.8),
                 boxShadow: [
@@ -1794,7 +1814,7 @@ IconButton(
           clipBehavior: Clip.antiAlias,
           padding: const EdgeInsets.symmetric(horizontal: 15),
           decoration: BoxDecoration(
-            color: const Color(0xED0E0A19),
+            color: const Color(0xFF0E0A19),
             borderRadius: BorderRadius.circular(25),
             border: Border.all(color: const Color(0xFF61318C)),
             boxShadow: [
