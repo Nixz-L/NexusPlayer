@@ -63,3 +63,7 @@ app.*.map.json
 .env.*
 !.env.example
 
+
+*.bak*
+hs_err_pid*.log
+android/app/src/main/jniLibs/

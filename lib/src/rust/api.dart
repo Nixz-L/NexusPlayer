@@ -7,5 +7,167 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+// These functions are ignored because they are not marked as `pub`: `ensure_engine`, `fail`, `handle_track_end`, `load_current`, `repeat_to_string`, `status_to_string`, `stop_engine`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `State`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `eq`, `fmt`, `fmt`, `fmt`, `from`
+
 Future<String> getNexusVersion() =>
     RustLib.instance.api.crateApiGetNexusVersion();
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PlayerController>>
+abstract class PlayerController implements RustOpaqueInterface {
+  Future<int?> currentIndex();
+
+  Future<String?> lastError();
+
+  // HINT: Make it `#[frb(sync)]` to let it become the default constructor of Dart class.
+  static Future<PlayerController> newInstance() =>
+      RustLib.instance.api.crateApiPlayerControllerNew();
+
+  Future<bool> next();
+
+  Future<void> pause();
+
+  Future<bool> playIndex({required int index});
+
+  Future<bool> previous();
+
+  Future<List<TrackInfo>> queue();
+
+  Future<void> resume();
+
+  Future<void> seek({required BigInt positionMs});
+
+  Future<void> setQueue({required List<TrackInput> tracks});
+
+  Future<bool> setRepeatMode({required String mode});
+
+  Future<void> setShuffle({required bool enabled});
+
+  Future<PlaybackState> snapshot();
+
+  Future<void> stop();
+
+  /// Chamar a cada ~250 ms pelo Flutter: processa eventos do MPV
+  /// (fim de faixa, erro) e devolve o estado atualizado.
+  Future<PlaybackState> tick();
+
+  Future<void> togglePlayPause();
+}
+
+class PlaybackState {
+  final String status;
+  final TrackInfo? currentTrack;
+  final BigInt positionMs;
+  final BigInt? durationMs;
+  final String repeatMode;
+  final bool shuffle;
+
+  const PlaybackState({
+    required this.status,
+    this.currentTrack,
+    required this.positionMs,
+    this.durationMs,
+    required this.repeatMode,
+    required this.shuffle,
+  });
+
+  @override
+  int get hashCode =>
+      status.hashCode ^
+      currentTrack.hashCode ^
+      positionMs.hashCode ^
+      durationMs.hashCode ^
+      repeatMode.hashCode ^
+      shuffle.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlaybackState &&
+          runtimeType == other.runtimeType &&
+          status == other.status &&
+          currentTrack == other.currentTrack &&
+          positionMs == other.positionMs &&
+          durationMs == other.durationMs &&
+          repeatMode == other.repeatMode &&
+          shuffle == other.shuffle;
+}
+
+class TrackInfo {
+  final String id;
+  final String uri;
+  final String title;
+  final String? artist;
+  final String? album;
+  final BigInt? durationMs;
+
+  const TrackInfo({
+    required this.id,
+    required this.uri,
+    required this.title,
+    this.artist,
+    this.album,
+    this.durationMs,
+  });
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      uri.hashCode ^
+      title.hashCode ^
+      artist.hashCode ^
+      album.hashCode ^
+      durationMs.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TrackInfo &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          uri == other.uri &&
+          title == other.title &&
+          artist == other.artist &&
+          album == other.album &&
+          durationMs == other.durationMs;
+}
+
+class TrackInput {
+  final String id;
+  final String uri;
+  final String title;
+  final String? artist;
+  final String? album;
+  final BigInt? durationMs;
+
+  const TrackInput({
+    required this.id,
+    required this.uri,
+    required this.title,
+    this.artist,
+    this.album,
+    this.durationMs,
+  });
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      uri.hashCode ^
+      title.hashCode ^
+      artist.hashCode ^
+      album.hashCode ^
+      durationMs.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TrackInput &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          uri == other.uri &&
+          title == other.title &&
+          artist == other.artist &&
+          album == other.album &&
+          durationMs == other.durationMs;
+}

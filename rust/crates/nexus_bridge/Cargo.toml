@@ -8,3 +8,6 @@ crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 flutter_rust_bridge = "=2.13.0"
+nexus_core = { version = "0.1.0", path = "../nexus_core" }
+nexus_audio = { version = "0.1.0", path = "../nexus_audio" }
+nexus_types = { version = "0.1.0", path = "../nexus_types" }
