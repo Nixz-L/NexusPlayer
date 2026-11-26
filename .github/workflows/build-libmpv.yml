@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: mpv-android/mpv-android
-          ref: fdf74f6
+          ref: fdf74f6830c47dbaa8a22ac79726e8303f1db5af
           path: mpv-android-src
 
       - name: Setup Java
