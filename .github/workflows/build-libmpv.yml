@@ -1,0 +1,136 @@
+name: Build libmpv Android ARM64
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout Nexus Player
+        uses: actions/checkout@v7
+
+      - name: Checkout mpv-android source
+        uses: actions/checkout@v7
+        with:
+          repository: mpv-android/mpv-android
+          ref: fdf74f6
+          path: mpv-android-src
+
+      - name: Setup Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf pkgconf libtool ninja-build \
+            python3-pip python3-venv pipx \
+            gperf nasm unzip wget git build-essential
+
+          pipx install meson
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Download Android SDK and dependencies
+        working-directory: mpv-android-src/buildscripts
+        run: |
+          mkdir -p sdk
+
+          if [ -n "${ANDROID_HOME:-}" ] && \
+             [ -d "$ANDROID_HOME" ] && \
+             [ ! -e sdk/android-sdk-linux ]; then
+            ln -s "$ANDROID_HOME" sdk/android-sdk-linux
+          fi
+
+          IN_CI=1 ./include/download-sdk.sh
+          IN_CI=1 ./include/download-deps.sh
+
+      - name: Pin dependency revisions
+        working-directory: mpv-android-src/buildscripts
+        run: |
+          checkout_commit() {
+            repo="$1"
+            revision="$2"
+
+            git -C "deps/$repo" fetch --depth=1 origin "$revision"
+            git -C "deps/$repo" checkout --detach FETCH_HEAD
+          }
+
+          checkout_commit dav1d 362bc11
+          checkout_commit ffmpeg 094a2f8
+          checkout_commit libass b2fe9d8
+          checkout_commit libplacebo 3330a51
+          checkout_commit mpv 0b7ed67
+
+          git -C deps/libplacebo submodule update --init --recursive
+
+      - name: Build libmpv for ARM64
+        working-directory: mpv-android-src/buildscripts
+        run: |
+          rm -rf prefix
+          ./buildall.sh --clean --arch arm64 mpv
+
+      - name: Validate and package libraries
+        working-directory: mpv-android-src/buildscripts
+        run: |
+          set -euo pipefail
+
+          PREFIX="$PWD/prefix/arm64"
+          DEST="$GITHUB_WORKSPACE/dist/libmpv"
+          LIBDIR="$DEST/arm64-v8a/lib"
+
+          test -s "$PREFIX/lib/libmpv.so"
+
+          mkdir -p "$LIBDIR"
+
+          shopt -s nullglob
+          libs=( "$PREFIX"/lib/*.so* )
+
+          if [ ${#libs[@]} -eq 0 ]; then
+            echo "No shared libraries found."
+            exit 1
+          fi
+
+          cp -a "${libs[@]}" "$LIBDIR/"
+          cp -a "$PREFIX/include" "$DEST/"
+
+          echo "Checking ELF architecture..."
+          while IFS= read -r -d '' so; do
+            if ! readelf -h "$so" | grep -q 'Machine:.*AArch64'; then
+              echo "Invalid architecture: $so"
+              exit 1
+            fi
+          done < <(find "$LIBDIR" -type f -name '*.so*' -print0)
+
+          echo "libmpv dependencies:"
+          readelf -d "$LIBDIR/libmpv.so" | grep NEEDED || true
+
+          cat > "$DEST/SOURCE-REVISION.txt" <<'EOF'
+          mpv-android: fdf74f6
+          NDK: 30.0.16248370
+          Architecture: arm64-v8a
+          dav1d: 362bc11
+          FFmpeg: 094a2f8
+          libass: b2fe9d8
+          libplacebo: 3330a51
+          mpv: 0b7ed67
+          EOF
+
+          tar -czf "$GITHUB_WORKSPACE/libmpv-android-arm64.tar.gz" \
+            -C "$DEST" .
+
+      - name: Upload libmpv artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: libmpv-android-arm64
+          path: libmpv-android-arm64.tar.gz
+          if-no-files-found: error
+          retention-days: 14
